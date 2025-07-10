@@ -1,0 +1,7 @@
+setuptools
+python-dotenv
+coloredlogs
+colorlog
+pytest
+pytest-asyncio
+pytango
