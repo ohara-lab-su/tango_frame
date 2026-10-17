@@ -1,3 +1,5 @@
+"""JSON codec used when a Python call cannot use a native TANGO type."""
+
 import base64
 import json
 from typing import Any, Dict, Tuple
@@ -7,6 +9,14 @@ _TYPE_KEY = "__tango_frame_type__"
 
 
 def _encode(value: Any) -> Any:
+    """Convert Python values into JSON-serializable values.
+
+    Args:
+        value: Python value to encode.
+
+    Returns:
+        JSON-serializable representation.
+    """
     if isinstance(value, bytes):
         return {
             _TYPE_KEY: "bytes",
@@ -25,6 +35,14 @@ def _encode(value: Any) -> Any:
 
 
 def _decode(value: Any) -> Any:
+    """Restore a Python value from its JSON-compatible representation.
+
+    Args:
+        value: Decoded JSON value.
+
+    Returns:
+        Restored Python value.
+    """
     if isinstance(value, list):
         return [_decode(item) for item in value]
     if isinstance(value, dict):
@@ -38,6 +56,15 @@ def _decode(value: Any) -> Any:
 
 
 def pack_call(args: Tuple[Any, ...], kwargs: Dict[str, Any]) -> str:
+    """Serialize positional and keyword arguments into one TANGO string.
+
+    Args:
+        args: Positional call arguments.
+        kwargs: Keyword call arguments.
+
+    Returns:
+        Compact JSON payload.
+    """
     return json.dumps(
         {"args": _encode(args), "kwargs": _encode(kwargs)},
         ensure_ascii=False,
@@ -46,6 +73,14 @@ def pack_call(args: Tuple[Any, ...], kwargs: Dict[str, Any]) -> str:
 
 
 def unpack_call(payload: str) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
+    """Deserialize a call payload.
+
+    Args:
+        payload: JSON call payload.
+
+    Returns:
+        Tuple containing positional arguments and keyword arguments.
+    """
     data = json.loads(payload)
     args = _decode(data["args"])
     kwargs = _decode(data["kwargs"])
@@ -53,8 +88,24 @@ def unpack_call(payload: str) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
 
 
 def pack_value(value: Any) -> str:
+    """Serialize a non-native Python value.
+
+    Args:
+        value: Python value to serialize.
+
+    Returns:
+        Compact JSON payload.
+    """
     return json.dumps(_encode(value), ensure_ascii=False, separators=(",", ":"))
 
 
 def unpack_value(payload: str) -> Any:
+    """Deserialize a non-native Python value.
+
+    Args:
+        payload: JSON payload.
+
+    Returns:
+        Restored Python value.
+    """
     return _decode(json.loads(payload))
