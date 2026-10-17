@@ -1,34 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tango-frame"
-
-version = "0.0.0"
-
-description = "Taango Frame"
-authors = [
-  { name="Kengo NAKADA", email="kengo.nakada@email.com" }
-]
-readme = "README.md"
-requires-python = ">=3.10"  # 必要に応じて更新
-dependencies = [
-    "pytango",
-]
-
-[tool.setuptools]
-package-dir = { "" = "src" }
+version = "0.1.0"
+requires-python = ">=3.8"
+dependencies = ["pytango>=10.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["tanto*"]
-
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-
-[tool.black]
-line-length = 88
-
-[tool.isort]
-profile = "black"
