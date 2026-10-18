@@ -4,11 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tango-frame"
-version = "0.1.3"
+version = "0.1.4"
 description = "Automatic TANGO dispatch framework for ordinary Python device classes"
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = ["pytango>=10"]
+dependencies = [
+    "pytango>=10",
+    "xlogger-py"
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
