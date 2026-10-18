@@ -1,5 +1,8 @@
 # CHANGELOG
 
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/tango_frame/blob/main/CHANGELOG.en.md)
+[![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/tango_frame/blob/main/CHANGELOG.md)
+
 ## v0.1.1 - 2026-10-17
 
 Added configuration and client support for standard TANGO environments.
