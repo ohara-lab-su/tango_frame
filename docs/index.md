@@ -1,21 +1,22 @@
 # tango-frame
 
-`tango-frame` は、通常の Python 機器制御クラスから TANGO Device Server と対応する Python client wrapper を自動構成するフレームワークである。
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://ohara-lab-su.github.io/tango_frame/en/index.html) [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://ohara-lab-su.github.io/tango_frame/ja/index.html)
 
-[GitHub](https://github.com/ohara-lab-su/tango_frame/) / [English](index_en.md)
+[GitHub](https://github.com/ohara-lab-su/tango_frame/)
+
+`tango-frame` automatically constructs a TANGO Device Server and a corresponding Python client wrapper from an ordinary Python device-control class.
 
 ```{toctree}
 :maxdepth: 2
 :caption: Contents:
 
 overview
-index_en
 api/modules
 ```
 
-## 目的
+## Purpose
 
-機器制御クラスを TANGO 固有の実装へ書き換えるのではなく、既存の Python API を機器 API の定義として利用する。
+The existing Python device-control API is used as the definition of the device API, without rewriting the device class for TANGO.
 
 ```text
 Python device class
@@ -25,15 +26,17 @@ Python device class
       +--> @property     --> TANGO attribute
 ```
 
-クライアント側では TANGO `DeviceProxy` を利用しながら、元の機器クラスに近い method / property API を提供する。
+The device class remains independent of TANGO. Public methods are exposed as named TANGO commands, and Python properties are exposed as TANGO attributes.
 
-## 設計上の境界
+The client communicates through TANGO `DeviceProxy` while presenting Python methods and properties corresponding to the original device API.
 
-`src/tango_frame/` は具体的な機器を知らない汎用 framework である。
+## Design boundaries
 
-具体的な機器側では、TANGO 非依存の機器制御クラスを保持し、その機器固有の `server_tango` 層から `AutoDispatchDevice` / `AutoDispatchClient` を利用する。
+`src/tango_frame/` is a reusable framework that does not depend on a concrete device class.
 
-TANGO で直接表現できる値は native TANGO 型を使用する。複数の異種引数など、TANGO command の単一入力へ直接対応できない場合だけ JSON string へ変換する。
+A device-specific package keeps its TANGO-independent device-control class and uses `AutoDispatchDevice` / `AutoDispatchClient` in a device-specific `server_tango` layer.
+
+Native TANGO-compatible values are transported as native TANGO types. JSON encoding is used only when a Python call or return value cannot be represented directly by the TANGO command model.
 
 ## Version
 

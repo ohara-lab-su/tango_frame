@@ -1,5 +1,7 @@
 # Architecture and usage
 
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://ohara-lab-su.github.io/tango_frame/en/overview.html) [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://ohara-lab-su.github.io/tango_frame/ja/overview.html)
+
 ## Separation of responsibilities
 
 ```text

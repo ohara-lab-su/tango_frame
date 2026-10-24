@@ -5,45 +5,49 @@
 
 ## v0.1.1 - 2026-10-17
 
-標準的な TANGO 環境で使用するための設定機能およびクライアント機能を追加。
+Added configuration and client support for standard TANGO environments.
 
-- TANGO の接続設定を定義する `tango_frame.config.Config` を追加。
-    - `device_name` で TANGO device name を指定可能。
-    - `tango_host` で TANGO Database の接続先を指定可能。
-    - `database` で Database 使用／Database-less 接続を選択可能。
-- `tango_frame` に `DeviceProxy` wrapper を追加。
-    - 内部では PyTango native の `DeviceProxy` を生成して使用。
-    - `device_class` を必要とせず、既存の標準 TANGO device に接続可能。
-    - TANGO command、attribute、および native `DeviceProxy` の操作を wrapper 経由で利用可能。
-- 通常の TANGO Database を使用する構成に対応。
-    - `database=True` の場合、標準の TANGO 名前空間を使用して device を解決。
-    - `domain/family/member` 形式の TANGO device name で device を指定可能。
-    - `tango_host` により TANGO Database の接続先を指定可能。
-- ローカルテスト用の Database-less 接続を維持。
-    - `database=False` の場合、`#dbase=no` を使用した Database-less TANGO URL で接続。
-    - Database-less 動作はローカルテスト用であり、フレームワーク自体の前提とはしない。
-- `AutoDispatchClient` から `Config` を使用できるように変更。
-    - `device_class` が与えられた場合、その Python API をクライアント側に再構築し、TANGO device にディスパッチ。
-    - native TANGO device を使用する場合は `device_class` を必要とせず、フレーム側の `DeviceProxy` から直接利用可能。
-- サーバーフレームワークは通常の TANGO Device Server としての運用に対応。
-    - フレームワーク自体は `-nodb` を必須としない。
-    - `-nodb` はローカルでの Device Server 動作試験用として利用可能。
-    - 通常運用では、生成した Device Server を TANGO Database に登録し、通常の TANGO 名前空間からアクセス可能。
-- Google style の docstring およびソースコメントを追加。
-- Python 3.7 互換の型アノテーションに整理。
-- ソースコードから三項演算子を除去。
+- Added `tango_frame.config.Config` for defining TANGO connection settings.
+    - Device name can be specified with `device_name`.
+    - TANGO Database host can be specified with `tango_host`.
+    - Database and database-less connections can be selected with `database`.
+- Added a `DeviceProxy` wrapper to `tango_frame`.
+    - The wrapper creates and uses the native PyTango `DeviceProxy` internally.
+    - Standard TANGO devices can therefore be accessed without requiring a `device_class`.
+    - TANGO commands, attributes, and other native `DeviceProxy` operations remain accessible through the wrapper.
+- Added support for normal TANGO Database-based operation.
+    - With `database=True`, devices are resolved through the standard TANGO namespace.
+    - A device can be addressed by its TANGO device name, such as `domain/family/member`.
+    - `tango_host` can be used to specify the TANGO Database endpoint.
+- Retained database-less operation for local testing.
+    - With `database=False`, the client uses a database-less TANGO URL with `#dbase=no`.
+    - Database-less operation is intended for local tests and is not required by the framework architecture.
+- Updated `AutoDispatchClient` to accept `Config`.
+    - When a `device_class` is supplied, its Python API is reconstructed on the client and dispatched to the TANGO
+      device.
+    - When accessing a native TANGO device, a `device_class` is not required; the framework `DeviceProxy` can be used
+      directly.
+- The server framework remains compatible with normal TANGO Device Server operation.
+    - The framework does not require `-nodb`.
+    - `-nodb` remains an option for local Device Server testing.
+    - In a standard TANGO deployment, generated Device Servers can be registered in the TANGO Database and accessed
+      through the normal TANGO namespace.
+- Added Google-style docstrings and source comments.
+- Updated type annotations for Python 3.7 compatibility.
+- Removed conditional expressions (ternary operators) from the source code.
 
 ## v0.1.0 - 2026-10-17
 
-`tango-frame` の初期バージョン。
+Initial version of `tango-frame`.
 
-- 通常の Python 機器制御クラスから TANGO Device Server を自動構築する機能を追加。
-- 公開メソッドを同名の TANGO command へ自動的にマッピングする機能を追加。
-- Python の property を TANGO attribute へ自動的にマッピングする機能を追加。書き込み可能な attribute にも対応。
-- 対応するスカラー値および同一型配列について、TANGO ネイティブ型へのマッピングを追加。
-- TANGO command のネイティブ型では直接表現できない呼び出し形式および戻り値に対する JSON fallback encoding を追加。
-- TANGO `DeviceProxy` を使用した Python client wrapper を追加。
-- 機器固有の client override、およびサーバー側での command 除外に対応。
-- TANGO に依存しないサンプル機器クラスと、それに対応する Device Server / client の実行例を追加。
-- 英語版および日本語版 README を追加。
-- Sphinx/MyST によるドキュメントと GitHub Pages workflow を追加。
+- Added automatic TANGO Device Server construction from an ordinary Python device-control class.
+- Added automatic mapping of public methods to named TANGO commands.
+- Added automatic mapping of Python properties to TANGO attributes, including writable attributes.
+- Added native TANGO type mapping for supported scalar and homogeneous array values.
+- Added JSON fallback encoding for call signatures and return values that cannot be represented directly by native TANGO
+  command types.
+- Added a Python client wrapper based on TANGO `DeviceProxy`.
+- Added support for device-specific client overrides and server-side command exclusion.
+- Added a TANGO-independent example device class and corresponding Device Server/client example.
+- Added English and Japanese README files.
+- Added Sphinx/MyST documentation and GitHub Pages workflow.
