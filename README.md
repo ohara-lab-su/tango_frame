@@ -3,20 +3,18 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ohara-lab-su/tango_frame/blob/main/README.en.md)
 [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://github.com/ohara-lab-su/tango_frame/blob/main/README.md)
 
-`tango-frame` は、通常の Python 機器制御クラスを TANGO Device Server として自動公開し、それに対応する Python
-クライアントを構成するためのフレームワークである。
+`tango-frame` automatically exposes an ordinary Python device-control class as a TANGO Device Server and provides a
+corresponding Python client wrapper.
 
-機器制御クラス自身は PyTango を import する必要がなく、`tango.server.Device` を継承する必要もない。公開メソッドを TANGO
-command、Python の property を TANGO attribute として対応付ける。
+The device-control class itself does not need to import PyTango or inherit from `tango.server.Device`. Public methods
+are mapped to TANGO commands and Python properties are mapped to TANGO attributes.
 
-[English README](README.md)
+## Concept
 
-## 基本思想
-
-機器実装と通信層を分離する。
+The framework keeps the device implementation and the communication layer separate.
 
 ```text
-通常の Python 機器制御クラス
+ordinary Python device class
         |
         +---- tango-frame ----> TANGO Device Server
         |                        method   -> command
@@ -27,22 +25,23 @@ command、Python の property を TANGO attribute として対応付ける。
                                  +---- TANGO DeviceProxy
 ```
 
-`tango-frame` は TANGO の上に別の RPC プロトコルを構築するものではない。TANGO 標準の command / attribute を自動生成し、クライアント側も
-`DeviceProxy` を用いてそれらを呼び出す。
+`tango-frame` is not a separate RPC protocol layered on top of TANGO. It generates and uses normal TANGO commands and
+attributes.
 
-## 主な機能
+## Features
 
-- 通常の Python class を機器 API の定義として利用する。
-- public method を同名の TANGO command として公開する。
-- `@property` を TANGO attribute として公開する。
-- setter を持つ property は read/write attribute とする。
-- TANGO で直接表現できる scalar / homogeneous array は native TANGO 型を優先する。
-- 複数の異種引数など、TANGO command の1入力で直接表現できない呼び出しだけを1個の JSON string に変換する。
-- native TANGO 型で表現できない複雑な戻り値は JSON string に変換する。
-- クライアント側は内部で `tango.DeviceProxy` を使いながら、元の機器クラスに近い Python method / property API を提供する。
-- 機器固有の client-side 処理は自動 remote dispatch を override できる。
+- An ordinary Python class is used as the device API definition.
+- Public methods are exposed as named TANGO commands.
+- `@property` values are exposed as TANGO attributes.
+- Read/write Python properties become read/write TANGO attributes.
+- Native TANGO-compatible scalar and homogeneous array types are used when possible.
+- Calls that cannot be represented directly by one TANGO command input, such as heterogeneous multiple arguments, are
+  packed into one JSON string input.
+- Complex return values that cannot be represented by a native TANGO type are encoded as JSON strings.
+- The client presents the device API as Python methods and properties while communicating through `tango.DeviceProxy`.
+- Device-specific client behavior can override automatic remote dispatch.
 
-## 構成
+## Package layout
 
 ```text
 src/
@@ -68,41 +67,44 @@ example/
         └── client.py
 ```
 
-`src/tango_frame/` は再利用可能な framework であり、具体的な機器クラスを含まない。
+`src/tango_frame/` is the reusable framework and contains no concrete device implementation.
 
-`example/device_server/src/device/` は具体的な機器モジュールの例である。`device_class.py` は TANGO 非依存で、
-`server_tango/` がその機器に対する TANGO adapter 層になる。
+`example/device_server/src/device/` is a concrete example device module. `device_class.py` is independent of TANGO.
+`server_tango/` contains only the TANGO-specific adaptation for that device.
 
-## インストール
+## Installation
 
 ```bash
 pip install .
 ```
 
-**重要：Python / TANGO バージョンへの強い依存性があります。** このフレームワークは汎用的な Python RPC フレームワークではなく、PyTango
-とそのネイティブライブラリに依存します。Python のバージョン、OS、CPU アーキテクチャ、TANGO
-ランタイムの組合せによってはインストール・実行できません。既存装置の Python 環境を変更できない場合など、利用できない場面が多数あります。
+**Important: strong Python / TANGO version dependencies.** This is not a general-purpose Python RPC framework. It
+depends on PyTango and native TANGO libraries. Installation or execution may be impossible for certain combinations of
+Python version, operating system, CPU architecture, and TANGO runtime. Many existing instrument environments cannot use
+this framework, especially when their Python or TANGO versions cannot be upgraded.
 
-### パッケージ・ランタイム要件（v0.1.4）
+### Package and runtime requirements (v0.1.4)
 
-| 対象           | 要件・制約                                                                                                                         |
-|----------------|------------------------------------------------------------------------------------------------------------------------------------|
-| tango-frame    | 配布メタデータ上は Python >=3.9。Python 3.7/3.8 では PyTango 10 を使用できません。                                                 |
-| PyTango        | `pytango>=10`。10.0.x は Python >=3.9、10.1系および10.3系は Python >=3.10。新しい PyTango の導入には、対応する Python が必要です。 |
-| xlogger-py     | `xlogger-py`。PyPI 公開版 0.3.1 の要求は Python >=3.7。                                                                            |
-| setuptools     | ビルド時に `setuptools>=61`。実行時依存ではありません。                                                                            |
-| cppTango       | PyTango 10.0.x は cppTango >=10.0.0 を要求。PyTango の系列によって必要な cppTango が異なります。                                   |
-| ネイティブ依存 | cppTango が依存する omniORB4 / libzmq 等。PyTango の wheel 提供状況、OS、アーキテクチャ、システムライブラリの制約があります。      |
+| Component        | Requirements and limitations                                                                                                                      |
+|------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| tango-frame      | Package metadata requires Python >=3.9. Python 3.7/3.8 cannot use PyTango 10.                                                                     |
+| PyTango          | `pytango>=10`. Version 10.0.x requires Python >=3.9; the 10.1 and 10.3 series require Python >=3.10.                                              |
+| xlogger-py       | `xlogger-py`. Published version 0.3.1 requires Python >=3.7.                                                                                      |
+| setuptools       | `setuptools>=61` for building; not a runtime dependency.                                                                                          |
+| cppTango         | PyTango 10.0.x requires cppTango >=10.0.0; other PyTango series may require different cppTango versions.                                          |
+| Native libraries | cppTango depends on libraries including omniORB4 and libzmq. Wheel availability, OS, architecture, and system libraries can prevent installation. |
 
-**注意：** `requires-python >=3.9` はすべての Python 3.9 以降で動作を保証する意味ではありません。例えば Python 3.9 では
-PyTango 10.0.x 系の選択が必要で、10.3系は使用できません。Python 3.7 を想定して記述された機器クラスや型注釈があっても、フレームワーク全体が
-Python 3.7 で動くことを意味しません。依存関係が解決しても、対象機器・TANGO 環境での動作検証が別途必要です。
+**Note:** `requires-python >=3.9` does not guarantee that every Python version >=3.9 works with every PyTango release.
+Python 3.9 requires selecting an appropriate PyTango 10.0.x release, not the 10.3 series. Python 3.7-compatible type
+annotations in a device class do not make the complete framework Python 3.7-compatible. Successful dependency resolution
+also does not replace integration testing on the target device and TANGO deployment.
 
-公式情報： [PyTango 10.0.0](https://pypi.org/project/pytango/10.0.0/)、[PyTango 10.3.1](https://pypi.org/project/pytango/10.3.1/)、[xlogger-py 0.3.1](https://pypi.org/project/xlogger-py/0.3.1/)。
+Official
+references: [PyTango 10.0.0](https://pypi.org/project/pytango/10.0.0/), [PyTango 10.3.1](https://pypi.org/project/pytango/10.3.1/), [xlogger-py 0.3.1](https://pypi.org/project/xlogger-py/0.3.1/).
 
-## 機器制御クラス
+## Device class
 
-機器制御クラスは通常の Python class のままでよい。
+A device class remains an ordinary Python class.
 
 ```python
 from typing import List
@@ -137,11 +139,11 @@ class DeviceClass(object):
         self._position = value
 ```
 
-このクラスは TANGO を使わず、通常の Python object として直接実行することもできる。
+The class can still be instantiated and used directly without TANGO.
 
 ## TANGO Device Server
 
-機器固有の TANGO server class では、`AutoDispatchDevice` に機器クラスを指定する。
+A device-specific TANGO server class only binds the device class to `AutoDispatchDevice`.
 
 ```python
 from tango_frame import AutoDispatchDevice
@@ -153,7 +155,7 @@ class TangoDevice(AutoDispatchDevice):
     device_class = DeviceClass
 ```
 
-上の例は概ね次の TANGO API に変換される。
+The public API is converted automatically. For the example above:
 
 ```text
 add(value: float) -> float
@@ -169,7 +171,7 @@ position: float
     TANGO read/write attribute
 ```
 
-サーバー側で実行すべきでないメソッドは、機器固有の server class から除外できる。
+A device-specific server can exclude methods that must not be executed remotely:
 
 ```python
 class TangoDevice(AutoDispatchDevice):
@@ -177,12 +179,12 @@ class TangoDevice(AutoDispatchDevice):
     excluded_commands = {"save"}
 ```
 
-Device Server の起動自体は通常の PyTango server runtime を使用する。example の `-nodb` は TANGO database
-を使わずローカル試験するためだけの指定であり、framework の前提ではない。
+The actual server is started with the normal PyTango server runtime. The example uses `-nodb` only to run locally
+without a TANGO database.
 
-## クライアント
+## Client
 
-同じ機器クラスを `AutoDispatchClient` に指定する。
+The corresponding client is defined by binding the same device class to `AutoDispatchClient`.
 
 ```python
 from tango_frame import AutoDispatchClient
@@ -194,7 +196,7 @@ class DeviceClient(AutoDispatchClient):
     device_class = DeviceClass
 ```
 
-内部通信には TANGO `DeviceProxy` を使用するが、利用側では Python の method / property として扱う。
+The client uses TANGO `DeviceProxy` internally, while the caller uses Python-style methods and properties.
 
 ```python
 device = DeviceClient(
@@ -206,8 +208,8 @@ print(device.add(2.5))
 device.position = 20.0
 ```
 
-機器固有の client-side 処理は通常の継承で override する。たとえば `save(path)` は Device Server 側ではなく client machine
-に保存すべきなので、次のように実装できる。
+Device-specific client operations can be implemented normally. For example, a `save(path)` method should write on the
+client machine rather than on the Device Server machine:
 
 ```python
 from pathlib import Path
@@ -222,37 +224,37 @@ class DeviceClient(AutoDispatchClient):
         return path
 ```
 
-明示的に実装した client method は自動 remote dispatch より優先される。
+The explicitly implemented client method takes precedence over automatic remote dispatch.
 
-## 型変換
+## Type conversion
 
-原則として native TANGO 型を使用する。
+`tango-frame` prefers native TANGO values.
 
-| Python API                      | TANGO 上の表現                |
-|---------------------------------|-------------------------------|
-| `bool`                          | native boolean                |
-| `int`                           | native integer                |
-| `float`                         | native double                 |
-| `str`                           | native string                 |
-| homogeneous `List[T]`           | native TANGO array / spectrum |
-| 引数なし / 戻り値なし           | void                          |
-| 複数または異種の引数            | 1個の JSON string input       |
-| native 型にできない複雑な戻り値 | JSON string                   |
+| Python API                          | TANGO representation        |
+|-------------------------------------|-----------------------------|
+| `bool`                              | native boolean              |
+| `int`                               | native integer              |
+| `float`                             | native double               |
+| `str`                               | native string               |
+| homogeneous `List[T]`               | native TANGO array/spectrum |
+| no argument / no return             | void                        |
+| multiple or heterogeneous arguments | one JSON string input       |
+| unsupported complex return value    | JSON string                 |
 
-したがって JSON は通常の通信形式ではなく、TANGO の command model に直接対応できない Python 呼び出しを扱うための fallback
-である。
+JSON is therefore a fallback for Python call structures that do not map directly to TANGO's command model; it is not the
+default transport format.
 
-## ドキュメント
+## Documentation
 
-Sphinx/MyST のドキュメントは `docs/` 以下に置く。
+Sphinx/MyST documentation is under `docs/`.
 
 ```bash
 cd docs
 ./build.sh
 ```
 
-## バージョン
+## Version
 
-現在のバージョン: **0.1.4**
+Current version: **0.1.4**
 
-変更内容は [CHANGELOG.md](CHANGELOG.md) を参照。
+See [CHANGELOG.md](CHANGELOG.md).
