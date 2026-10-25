@@ -2,9 +2,10 @@
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://ohara-lab-su.github.io/tango_frame/en/index.html) [![ja](https://img.shields.io/badge/lang-ja-yellow.svg)](https://ohara-lab-su.github.io/tango_frame/ja/index.html)
 
-[GitHub](https://github.com/ohara-lab-su/tango_frame/)
+[GitHub repository](https://github.com/ohara-lab-su/tango_frame/) · [Project documentation](https://ohara-lab-su.github.io/)
 
-`tango-frame` は、通常の Python 機器制御クラスから TANGO Device Server と対応する Python client wrapper を自動構成するフレームワークである。
+`tango-frame` は、通常の Python 機器制御クラスから TANGO Device Server と対応する Python client wrapper
+を自動構成するフレームワークである。
 
 ```{toctree}
 :maxdepth: 2
@@ -32,9 +33,11 @@ Python device class
 
 `src/tango_frame/` は具体的な機器を知らない汎用 framework である。
 
-具体的な機器側では、TANGO 非依存の機器制御クラスを保持し、その機器固有の `server_tango` 層から `AutoDispatchDevice` / `AutoDispatchClient` を利用する。
+具体的な機器側では、TANGO 非依存の機器制御クラスを保持し、その機器固有の `server_tango` 層から `AutoDispatchDevice` /
+`AutoDispatchClient` を利用する。
 
-TANGO で直接表現できる値は native TANGO 型を使用する。複数の異種引数など、TANGO command の単一入力へ直接対応できない場合だけ JSON string へ変換する。
+TANGO で直接表現できる値は native TANGO 型を使用する。複数の異種引数など、TANGO command の単一入力へ直接対応できない場合だけ
+JSON string へ変換する。
 
 ## Version
 
