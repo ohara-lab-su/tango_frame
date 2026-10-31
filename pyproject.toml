@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tango-frame"
 version = "0.1.5"
-description = "Automatic TANGO dispatch framework for ordinary Python device classes"
+description = "TANGO device-server framework for exposing ordinary Python device classes without coupling device logic to communication."
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
@@ -15,3 +15,9 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.urls]
+Homepage = "https://ohara-lab-su.github.io/tango_frame/"
+Documentation = "https://ohara-lab-su.github.io/tango_frame/"
+Repository = "https://github.com/ohara-lab-su/tango_frame"
+Issues = "https://github.com/ohara-lab-su/tango_frame/issues"
